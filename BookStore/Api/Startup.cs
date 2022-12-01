@@ -18,7 +18,7 @@ namespace Api
             services.AddControllers();
 
             services.AddDbContext<ApiDbContext>(options =>
-                options.UseSqlServer(Configuration["connectionString:Database"])
+                options.UseSqlServer(Configuration["connectionStrings:Database"])
             );
 
             services.AddEndpointsApiExplorer();

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Hosting;
+
 using Api;
 
 var builder = WebApplication.CreateBuilder(args);
