@@ -1,27 +1,27 @@
-﻿using Api.Models.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+using Api.Models.DTOs;
 
 namespace Api.Models
 {
     public class Author
     {
         public int? Id { get; set; }
+
+        [Required]
         public string Firstname { get; set; }
+
+        [Required]
         public string Lastname { get; set; }
-
-        public Author(string firstname, string lastname, int? id)
-        {
-            this.Firstname = firstname;
-            this.Lastname = lastname;
-
-            if(id != null)
-            {
-                this.Id = id;
-            }
-        }
 
         public static Author ConvertsDtoToDao(AuthorDto authorDto, int? id = null)
         {
-            return new Author(authorDto.Firstname, authorDto.Lastname, id);
+            return new Author
+            {
+                Id = id,
+                Firstname = authorDto.Firstname,
+                Lastname = authorDto.Lastname,
+            };
         }
     }
 }

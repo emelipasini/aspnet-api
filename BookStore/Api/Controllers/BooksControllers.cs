@@ -20,81 +20,124 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var books = await context.Books.ToListAsync();
-            if (books != null)
+            try
             {
-                return Ok(books);
+                var books = await context.Books.ToListAsync();
+                if (books != null)
+                {
+                    return Ok(books);
+                }
+                return NoContent();
             }
-            return NoContent();
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
-            var book = await context.Books.FirstOrDefaultAsync(x => x.Id == id);
-            if (book != null)
+            try
             {
-                return Ok(book);
+                var book = await context.Books.FirstOrDefaultAsync(x => x.Id == id);
+                if (book != null)
+                {
+                    return Ok(book);
+                }
+                return NotFound($"No existe el registro con id: {id}");
             }
-            return NotFound($"No existe el registro con id: {id}");
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
 
         [HttpGet("search/{title}")]
         public async Task<ActionResult> GetByName(string title)
         {
-            title = title.Trim().ToLower();
-            var books = await context.Books
-                .Where(x => x.Title.ToLower().Contains(title))
-                .ToListAsync();
-
-            if (books != null)
+            try
             {
-                return Ok(books);
+                title = title.Trim().ToLower();
+                var books = await context.Books
+                    .Where(x => x.Title.ToLower().Contains(title))
+                    .ToListAsync();
+
+                if (books != null)
+                {
+                    return Ok(books);
+                }
+                return NotFound("No se encontraron registros con ese titulo");
             }
-            return NotFound("No se encontraron registros con ese titulo");
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult> Post(BookDto bookDto)
         {
-            var book = Book.ConvertsDtoToDao(bookDto);
+            try
+            {
+                var book = Book.ConvertsDtoToDao(bookDto);
 
-            context.Books.Add(book);
-            await context.SaveChangesAsync();
+                context.Books.Add(book);
+                await context.SaveChangesAsync();
 
-            return Ok(book);
+                return Ok(book);
+            }
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, BookDto bookDto)
         {
-            var exists = await context.Books.AnyAsync(x => x.Id == id);
-            if (!exists)
+            try
             {
-                return NotFound();
+                var exists = await context.Books.AnyAsync(x => x.Id == id);
+                if (!exists)
+                {
+                    return NotFound();
+                }
+
+                var book = Book.ConvertsDtoToDao(bookDto, id);
+
+                context.Books.Update(book);
+                await context.SaveChangesAsync();
+
+                return Ok(book);
             }
-
-            var book = Book.ConvertsDtoToDao(bookDto, id);
-
-            context.Books.Update(book);
-            await context.SaveChangesAsync();
-
-            return Ok(book);
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exists = await context.Books.AnyAsync(x => x.Id == id);
-            if (!exists)
+            try
             {
-                return NotFound();
+                var bookToDelete = await context.Books.FirstOrDefaultAsync(x => x.Id == id);
+                if (bookToDelete == null)
+                {
+                    return NotFound();
+                }
+
+                context.Books.Remove(bookToDelete);
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
-
-            context.Books.Remove(new Book(null, null, id));
-            await context.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception err)
+            {
+                return Problem($"Ha ocurrido un error al realizar la transaccion. {err}");
+            }
         }
     }
 }
+
